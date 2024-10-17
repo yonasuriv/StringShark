@@ -100,12 +100,11 @@ sshark [-md|-mc|-mw|-me] "keyword" [-r "replace_value"] [-p "path"]
    ```bash
    sshark -mw "variable" -r "new_variable"
 
+## How It Works
+
 <p align="center">
     <img src="https://github.com/user-attachments/assets/f3600e08-a64f-4f2c-924f-41b01f489466" alt="Example Demo" style="width: 500px;"/>
 </p>
-
-
-## How It Works
 
 1. **Search Mode:**
    StringShark walks through all directories and files, searching for the given keyword. The keyword can be matched using different modes:
