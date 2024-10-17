@@ -1,7 +1,3 @@
-Here's an improved and expanded version of the `README.md` for your `stringshark` script, including detailed descriptions, installation instructions, usage examples, and support for all operating systems.
-
----
-
 # StringShark
 
 StringShark is a powerful command-line tool to quickly search for keywords, secrets, or variables in files and directories. It offers flexible search options (case-sensitive, whole-word matching, etc.) and allows you to replace matches with new values, all in a cross-platform manner. Fully compatible with Linux, macOS, and Windows, StringShark is a must-have for developers, security professionals, and sysadmins.

@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+import os
+import sys
+import re
+import platform
+
+# Function to colorize matched keyword for terminal output (Linux and macOS support colors)
+def colorize_keyword(line, keyword):
+    if platform.system() in ['Linux', 'Darwin']:  # Linux and macOS
+        return re.sub(f"({keyword})", r"\033[91m\1\033[0m", line)
+    else:  # Windows
+        return line  # Colorizing in the terminal doesn't work by default on Windows
+
+def search_and_replace(keyword, match_mode, search_path, replace=None):
+    # Traverse through all directories and files in the current directory
+    for root, dirs, files in os.walk(search_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            try:
+                # Open file with proper encoding
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    lines = f.readlines()
+            except:
+                continue  # Ignore files that can't be opened
+
+            found = False
+            new_lines = []
+            for line_number, line in enumerate(lines, 1):
+                match = None
+                # Handle different matching modes
+                if match_mode in ['-md', '']:  # Match default (no case sensitivity, partial)
+                    match = re.search(re.escape(keyword), line, re.IGNORECASE)
+                elif match_mode == '-mc':  # Match case-sensitive
+                    match = re.search(re.escape(keyword), line)
+                elif match_mode == '-mw':  # Match whole word (case-insensitive)
+                    match = re.search(rf'\b{re.escape(keyword)}\b', line, re.IGNORECASE)
+                elif match_mode == '-me':  # Match both case-sensitive and whole word
+                    match = re.search(rf'\b{re.escape(keyword)}\b', line)
+
+                if match:
+                    if replace:
+                        # Replace keyword with the new value
+                        new_line = re.sub(re.escape(keyword), replace, line)
+                        if new_line != line:
+                            print(f"\nKeyword \"{colorize_keyword(keyword, keyword)}\" replaced with \"{replace}\" in {file_path}")
+                        line = new_line
+                    else:
+                        print(f"\nKeyword found in {file_path} on line {line_number}:")
+                        # Highlight the matched keyword in the output
+                        print(colorize_keyword(line.strip(), match.group()))
+                    found = True
+                new_lines.append(line)
+            
+            if found and replace:
+                # Write changes back to the file
+                try:
+                    with open(file_path, 'w', encoding='utf-8', errors='ignore') as f:
+                        f.writelines(new_lines)
+                except:
+                    continue  # Ignore files that can't be written to
+
+def main():
+    # Check if enough arguments are provided
+    if len(sys.argv) < 2:
+        print("Usage: sshark [-md|-mc|-mw|-me] \"keyword\" [-r \"replace_value\"] [-p \"path\"]")
+        sys.exit(1)
+
+    # Default search path is the current directory
+    search_path = '.'
+
+    # Extract the match mode and keyword
+    if sys.argv[1] in ['-md', '-mc', '-mw', '-me']:
+        match_mode = sys.argv[1]
+        keyword = sys.argv[2]
+    else:
+        match_mode = '-md'  # Default match mode if no argument is provided
+        keyword = sys.argv[1]
+
+    # Check if the replace option is given
+    replace = None
+    if "-r" in sys.argv:
+        replace_index = sys.argv.index("-r")
+        replace = sys.argv[replace_index + 1]
+
+    # Check if the path argument is given
+    if "-p" in sys.argv:
+        path_index = sys.argv.index("-p")
+        search_path = sys.argv[path_index + 1]
+    
+    # Call the search and replace function
+    search_and_replace(keyword, match_mode, search_path, replace)
+
+if __name__ == "__main__":
+    main()
