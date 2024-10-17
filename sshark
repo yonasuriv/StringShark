@@ -6,10 +6,16 @@ import platform
 
 # Function to colorize matched keyword for terminal output (Linux and macOS support colors)
 def colorize_keyword(line, keyword):
-    if platform.system() in ['Linux', 'Darwin']:  # Linux and macOS
+    if platform.system() in ['Linux', 'Darwin']:
         return re.sub(f"({keyword})", r"\033[91m\1\033[0m", line)
     else:  # Windows
         return line  # Colorizing in the terminal doesn't work by default on Windows
+
+def colorize_replacement(replacement):
+    if platform.system() in ['Linux', 'Darwin']:
+        return f"\033[92m{replacement}\033[0m"
+    else:  # Windows (if colors aren't supported)
+        return replacement
 
 def search_and_replace(keyword, match_mode, search_path, replace=None):
     # Traverse through all directories and files in the current directory
@@ -39,10 +45,10 @@ def search_and_replace(keyword, match_mode, search_path, replace=None):
 
                 if match:
                     if replace:
-                        # Replace keyword with the new value
-                        new_line = re.sub(re.escape(keyword), replace, line)
+                        # Replace keyword with the new value (case-insensitive)
+                        new_line = re.sub(re.escape(keyword), replace, line, flags=re.IGNORECASE)
                         if new_line != line:
-                            print(f"\nKeyword \"{colorize_keyword(keyword, keyword)}\" replaced with \"{replace}\" in {file_path}")
+                            print(f"\nKeyword \"{colorize_keyword(line.strip(), match.group())}\" replaced with \"{colorize_replacement(replace)}\" in {file_path}")
                         line = new_line
                     else:
                         print(f"\nKeyword found in {file_path} on line {line_number}:")
