@@ -70,10 +70,10 @@ sshark [-md|-mc|-mw|-me] "keyword" [-r "replace_value"] [-p "path"]
 1. **Search for a keyword (case-insensitive, partial match) in the current directory:**
 
    ```bash
-   sshark  "password"
+   sshark "password"
    ```
 
-or 
+   or 
 
    ```bash
    sshark -md "password"
