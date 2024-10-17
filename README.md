@@ -1,6 +1,6 @@
-# StringShark
+![String Shark Logo](https://github.com/user-attachments/assets/90e11ba2-bbcd-4b77-a3e9-0b7c006ee223)
 
-StringShark is a powerful command-line tool to quickly search for keywords, secrets, or variables in files and directories. It offers flexible search options (case-sensitive, whole-word matching, etc.) and allows you to replace matches with new values, all in a cross-platform manner. Fully compatible with Linux, macOS, and Windows, StringShark is a must-have for developers, security professionals, and sysadmins.
+StringShark is a simple yet powerful command-line utility developed in Python, designed to offer seamless compatibility with Linux, macOS, and Windows. It enables efficient searches for keywords, secrets, or variables within files and directories, and offers flexible search parameters and the ability to replace identified matches with new values.
 
 ## Features
 - **Fast Keyword Search:** Search for any string, keyword, or variable across multiple files and directories.
