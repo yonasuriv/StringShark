@@ -61,7 +61,7 @@ sshark [-md|-mc|-mw|-me] "keyword" [-r "replace_value"] [-p "path"]
 - **`-md` (Default Match Mode):** Case-insensitive partial match.
 - **`-mc`:** Case-sensitive match.
 - **`-mw`:** Case-insensitive whole-word match.
-- **`-me`:** Case-sensitive whole-word match.
+- **`-me`:** Case-sensitive whole-word match. (exact match)
 - **`-r "replace_value"` (Optional):** Replace the matched keyword with a new value.
 - **`-p "path"` (Optional):** Specify the directory or file path to search. Defaults to the current directory if omitted.
 
