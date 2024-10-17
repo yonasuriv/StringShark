@@ -16,7 +16,7 @@ StringShark is a powerful command-line tool to quickly search for keywords, secr
 2. Run the following command to install the script:
 
    ```bash
-   ./setup.sh -i
+   ./SETUP -i
    ```
 
    This will:
@@ -30,7 +30,7 @@ StringShark is a powerful command-line tool to quickly search for keywords, secr
 3. Run the following command:
 
    ```bash
-   ./setup.sh -i
+   ./SETUP -i
    ```
 
    This will:
@@ -43,7 +43,7 @@ StringShark is a powerful command-line tool to quickly search for keywords, secr
 To uninstall `stringshark` from your system, simply run the uninstall command:
 
 ```bash
-./setup.sh -u
+./SETUP -u
 ```
 
 This will remove the script from your system and revert any changes made during installation (such as removing it from `/usr/bin/` or `C:/Program Files/`).
