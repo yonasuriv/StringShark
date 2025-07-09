@@ -12,7 +12,12 @@ StringShark is a simple yet powerful command-line utility developed in Python, d
 
 ### Linux and macOS
 
-1. Download or clone the `stringshark` script.
+1. Clone the repository 
+
+```bash
+git clone https://github.com/yonasuriv/stringshark && cd stringshark
+```
+
 2. Run the following command to install the script:
 
    ```bash
@@ -21,12 +26,22 @@ StringShark is a simple yet powerful command-line utility developed in Python, d
 
    This will:
    - Make the script executable.
-   - Move it to `/usr/bin/`, making it accessible from anywhere in the terminal.
+   - Move it to `$HOME/.local/bin`, making it accessible from anywhere in the terminal.
 
 ### Windows
 
-1. Download or clone the `stringshark` script.
-2. Open the command prompt or PowerShell as Administrator.
+1. Clone the repository 
+
+```bash
+git clone https://github.com/yonasuriv/stringshark;
+```
+
+2. Enter the repo
+
+```bash
+cd stringshark
+```
+
 3. Run the following command:
 
    ```bash
@@ -96,6 +111,9 @@ sshark <MODE> <KEYWORD> <OPTIONAL ARGUMENT>
    ```bash
    sshark -mw "username" -r "new_username"
    ```
+
+   or 
+
    
    ```bash
    sshark -mw "variable" -r "new_variable"
