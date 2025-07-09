@@ -20,16 +20,23 @@ def colorize_replacement(replacement):
 
 def search_and_replace(keyword, match_mode, search_path, replace=None):
     matches_found = False  # Variable to track if any matches are found
+    print(f"Searching for keyword: {keyword} in {search_path} with mode: {match_mode}")
 
-    # Traverse only the current directory (no recursion)
-    for file in os.listdir(search_path):
-        file_path = os.path.join(search_path, file)
-        if os.path.isfile(file_path):  # Ensure we're working with a file, not a directory
+    # Recursively traverse directories and subdirectories
+    for root, dirs, files in os.walk(search_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            # print(f"Checking file: {file_path}")
             try:
-                # Open file with proper encoding
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                # Try opening the file with UTF-8 encoding and check for decoding errors
+                with open(file_path, 'r', encoding='utf-8', errors='strict') as f:
                     lines = f.readlines()
-            except:
+            except UnicodeDecodeError:
+                # Skip the file if it's not UTF-8
+                # print(f"🔴 Skipping non-UTF-8 file: {file_path}")
+                continue  # Skip to the next file
+            except Exception as e:
+                # print(f"🔴 Error opening file {file_path}: {e}")
                 continue  # Ignore files that can't be opened
 
             found = False
@@ -46,64 +53,66 @@ def search_and_replace(keyword, match_mode, search_path, replace=None):
                 elif match_mode == '-me':  # Match both case-sensitive and whole word
                     match = re.search(rf'\b{re.escape(keyword)}\b', line)
 
-                if match:
-                    matches_found = True  # At least one match was found
-                    if replace:
-                        # Replace keyword with the new value (case-insensitive)
-                        new_line = re.sub(re.escape(keyword), replace, line, flags=re.IGNORECASE)
-                        if new_line != line:
-                            print(f"\n🦈 Keyword \"{colorize_keyword(line.strip(), match.group())}\" replaced with \"{colorize_replacement(replace)}\" in {file_path}")
-                        line = new_line
-                    else:
-                        print(f"\n🦈 Keyword found in {file_path} on line {line_number}:")
-                        # Highlight the matched keyword in the output
-                        print(colorize_keyword(line.strip(), match.group()))
-                    found = True
-                new_lines.append(line)
-
             if found and replace:
                 # Write changes back to the file
                 try:
                     with open(file_path, 'w', encoding='utf-8', errors='ignore') as f:
                         f.writelines(new_lines)
-                except:
+                except Exception as e:
+                    print(f"🔴 Error writing to file {file_path}: {e}")
                     continue  # Ignore files that can't be written to
 
     # If no matches were found, print a colored message
     if not matches_found:
-        print(f"\n 🔴 " + "No matches found for the keyword:" + f"{Fore.GREEN}", keyword + f"{Style.RESET_ALL}")
+        print(f"\n 🔴 No matches found for the keyword: {Fore.GREEN}{keyword}{Style.RESET_ALL}")
 
 def print_help():
-    help_message = """
-Usage: sshark [-md|-mc|-mw|-me] "keyword" [-r "replace_value"] [-p "path"]
+    logo = f'''
+{Fore.BLUE}.dP"Y8 888888 88""Yb 88 88b 88  dP""b8 {Fore.CYAN}.dP"Y8 88  88    db    88""Yb 88  dP 
+{Fore.BLUE}`Ybo."   88   88__dP 88 88Yb88 dP   `" {Fore.CYAN}`Ybo." 88  88   dPYb   88__dP 88odP  
+{Fore.BLUE}o.`Y8b   88   88"Yb  88 88 Y88 Yb  "88 {Fore.CYAN}o.`Y8b 888888  dP__Yb  88"Yb  88"Yb  
+{Fore.BLUE}8bodP'   88   88  Yb 88 88  Y8  YboodP {Fore.CYAN}8bodP' 88  88 dP""""Yb 88  Yb 88  Yb {Style.RESET_ALL}
+'''
+
+    help_message = f"""
+Usage: sshark {Fore.CYAN}<MODE> {Fore.BLUE}<KEYWORD> {Fore.MAGENTA}<OPTIONAL ARGUMENT>{Style.RESET_ALL}
 
 Description:
+
     A powerful search and replace tool for scanning through files in a directory.
     It allows you to search for keywords in files with different match modes and
     optionally replace them. It also supports searching through specific paths.
 
-Arguments:
-    -md          Match mode: default (case-insensitive, partial match). 
-                 Example: Finds keywords in any case (e.g. "hello" matches "Hello", "HELLO").
-    -mc          Match mode: case-sensitive (exact match). 
-                 Example: Only matches "hello" if the keyword is exactly "hello".
-    -mw          Match mode: whole word (case-insensitive).
-                 Example: Matches "hello" as a whole word (e.g. "hello" matches "hello", but not "hellos").
-    -me          Match mode: case-sensitive and whole word.
-                 Example: Finds only the exact match of "hello" as a whole word.
+Modes:
+    {Fore.CYAN}
+    -md{Style.RESET_ALL}                     Match mode: default (case-insensitive, partial match). 
+                            Example: Finds keywords in any case (e.g. "hello" matches "Hello", "HELLO").
+    {Fore.CYAN}
+    -mc{Style.RESET_ALL}                     Match mode: case-sensitive (exact match). 
+                            Example: Only matches "hello" if the keyword is exactly "hello".
+    {Fore.CYAN}
+    -mw{Style.RESET_ALL}                     Match mode: whole word (case-insensitive).
+                            Example: Matches "hello" as a whole word (e.g. "hello" matches "hello", but not "hellos").
+    {Fore.CYAN}          
+    -me{Style.RESET_ALL}                     Match mode: case-sensitive and whole word.
+                            Example: Finds only the exact match of "hello" as a whole word.
 
-    -r "replace_value"    Replace the found keyword with the given "replace_value".
-                          Example: Use this to replace all instances of the keyword with a new string.
-
-    -p "path"             The directory path where the search will be performed. 
-                          Defaults to the current directory if not provided.
+Optional Arguments:
+    {Fore.MAGENTA}
+    -r {Fore.GREEN}"replace_value"{Style.RESET_ALL}      Replace the found keyword with the given "replace_value".
+                            Example: Use this to replace all instances of the keyword with a new string.
+    {Fore.MAGENTA}
+    -p {Fore.GREEN}"path"{Style.RESET_ALL}               The directory path where the search will be performed. 
+                            Defaults to the current directory if not provided.
 
 Examples:
-    sshark -md "foo"                 	# Search for "foo" (case-insensitive) in the current directory
-    sshark -mc "foo"                 	# Search for "foo" (case-sensitive) in the current directory
-    sshark -mw "foo" -r "bar"        	# Replace "foo" with "bar" in the current directory (whole word, case-insensitive)
-    sshark -me "foo" -p "/path/to/dir"  # Search for "foo" exactly (case-sensitive and whole word) in a specific directory
+
+    sshark {Fore.CYAN}-md {Fore.BLUE}"foo"{Style.RESET_ALL}                 	# Search for "foo" (case-insensitive)
+    sshark {Fore.CYAN}-mc {Fore.BLUE}"foo"{Style.RESET_ALL}                 	# Search for "foo" (case-sensitive)
+    sshark {Fore.CYAN}-mw {Fore.BLUE}"foo" {Fore.MAGENTA}-r {Fore.GREEN}"bar"{Style.RESET_ALL}        	# Replace "foo" with "bar" (whole word, case-insensitive)
+    sshark {Fore.CYAN}-me {Fore.BLUE}"foo" {Fore.MAGENTA}-p {Fore.GREEN}"/path/to/dir"{Style.RESET_ALL}  # Search for "foo" exactly (case-sensitive and whole word) in a specific directory
 """
+    print(logo)
     print(help_message)
 
 def main():

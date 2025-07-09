@@ -16,7 +16,7 @@ StringShark is a simple yet powerful command-line utility developed in Python, d
 2. Run the following command to install the script:
 
    ```bash
-   ./SETUP -i
+   python SETUP -i
    ```
 
    This will:
@@ -30,7 +30,7 @@ StringShark is a simple yet powerful command-line utility developed in Python, d
 3. Run the following command:
 
    ```bash
-   ./SETUP -i
+   python SETUP -i
    ```
 
    This will:
@@ -43,7 +43,7 @@ StringShark is a simple yet powerful command-line utility developed in Python, d
 To uninstall `stringshark` from your system, simply run the uninstall command:
 
 ```bash
-./SETUP -u
+python SETUP -u
 ```
 
 This will remove the script from your system and revert any changes made during installation (such as removing it from `/usr/bin/` or `C:/Program Files/`).
@@ -52,8 +52,8 @@ This will remove the script from your system and revert any changes made during 
 
 After installing `stringshark`, you can use it directly from the terminal. Here are some examples of how to use it:
 
-```bash
-sshark [-md|-mc|-mw|-me] "keyword" [-r "replace_value"] [-p "path"]
+```
+sshark <MODE> <KEYWORD> <OPTIONAL ARGUMENT>
 ```
 
 ### Arguments:
@@ -70,7 +70,7 @@ sshark [-md|-mc|-mw|-me] "keyword" [-r "replace_value"] [-p "path"]
 1. **Search for a keyword (case-insensitive, partial match) in the current directory:**
 
    ```bash
-   sshark "password"
+   sshark -md "password"                 	 # Search for "password" (case-insensitive)
    ```
 
    or 
