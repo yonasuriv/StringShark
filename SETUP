@@ -6,21 +6,23 @@ detect_os() {
         Linux*)     os=Linux;;
         Darwin*)    os=Mac;;
         CYGWIN*|MINGW*) os=Windows;;
-        *)          os="UNKNOWN:${unameOut}"
+        *)          os="UNKNOWN:$(uname -s)"
     esac
 }
 
+WIN_INSTALL_PATH="C:/Program Files/sshark"
+UNIX_INSTALL_PATH="$HOME/.local/bin"
+
 # Function to add a directory to the PATH on Windows
 add_to_path_windows() {
-    install_path="C:/Program Files/sshark"
     # Use PowerShell to add the path permanently for the user
-    powershell -Command "[System.Environment]::SetEnvironmentVariable('Path', [System.Environment]::GetEnvironmentVariable('Path', 'User') + ';$install_path', 'User')"
-    echo "Added $install_path to the PATH"
+    powershell -Command "[System.Environment]::SetEnvironmentVariable('Path', [System.Environment]::GetEnvironmentVariable('Path', 'User') + ';$WIN_INSTALL_PATH', 'User')"
+    printf "\n   Added $WIN_INSTALL_PATH to the PATH"
 }
 
 # Installation function
 install_sshark() {
-    echo "Installing sshark..."
+    printf "\n🔵 Installing sshark 🦈...\n"
     
     # Make sshark executable
     chmod +x sshark
@@ -28,32 +30,31 @@ install_sshark() {
     # Handle based on OS
     case $os in
         Linux|Mac)
-            echo "Detected OS: $os"
-            # Move to /usr/bin and force overwrite
-            sudo mv -f sshark /usr/bin/
+            printf "\n🐧 Detected OS: $os"
+            # Move to $UNIX_INSTALL_PATH and force overwrite
+            sudo cp -f sshark "$UNIX_INSTALL_PATH/"
             if [ $? -eq 0 ]; then
-                echo "sshark installed successfully to /usr/bin"
+                printf "\n🟢 sshark installed successfully to $UNIX_INSTALL_PATH"
             else
-                echo "Failed to install sshark"
+                printf "\n🔴 Failed to install sshark"
                 exit 1
             fi
             ;;
         Windows)
-            echo "Detected OS: $os"
+            printf "\n🪟 Detected OS: $os"
             # Move to Program Files
-            install_path="C:/Program Files/sshark"
-            mv -f sshark "$install_path"
+            cp -f sshark "$WIN_INSTALL_PATH"
             if [ $? -eq 0 ]; then
-                echo "sshark installed successfully to $install_path"
+                printf "\n🟢 sshark installed successfully to $WIN_INSTALL_PATH"
                 # Add the install path to the Windows PATH
                 add_to_path_windows
             else
-                echo "Failed to install sshark"
+                printf "\n🔴 Failed to install sshark"
                 exit 1
             fi
             ;;
         *)
-            echo "Unknown or unsupported OS."
+            printf "\n🔴 Unknown or unsupported OS."
             exit 1
             ;;
     esac
@@ -61,43 +62,42 @@ install_sshark() {
 
 # Uninstallation function
 uninstall_sshark() {
-    echo "Uninstalling sshark..."
+    printf "\n🟠 Uninstalling sshark 🦈...\n"
 
     # Handle based on OS
     case $os in
         Linux|Mac)
-            echo "Detected OS: $os"
-            # Remove sshark from /usr/bin
-            if [ -f /usr/bin/sshark ]; then
-                sudo rm /usr/bin/sshark
+            printf "\n🐧 Detected OS: $os"
+            # Remove sshark from $UNIX_INSTALL_PATH
+            if [ -f "$UNIX_INSTALL_PATH/sshark" ]; then
+                sudo rm "$UNIX_INSTALL_PATH/sshark"
                 if [ $? -eq 0 ]; then
-                    echo "sshark successfully removed from /usr/bin"
+                    printf "\n🟢 sshark successfully removed from $UNIX_INSTALL_PATH"
                 else
-                    echo "Failed to remove sshark"
+                    printf "\n🔴 Failed to remove sshark"
                     exit 1
                 fi
             else
-                echo "sshark not found in /usr/bin"
+                printf "\n🔴 sshark not found in $UNIX_INSTALL_PATH"
             fi
             ;;
         Windows)
-            echo "Detected OS: $os"
+            printf "\n🪟 Detected OS: $os"
             # Remove sshark from Program Files
-            install_path="C:/Program Files/sshark"
-            if [ -f "$install_path/sshark" ]; then
-                rm "$install_path/sshark"
+            if [ -f "$WIN_INSTALL_PATH/sshark" ]; then
+                rm "$WIN_INSTALL_PATH/sshark"
                 if [ $? -eq 0 ]; then
-                    echo "sshark successfully removed from $install_path"
+                    printf "\n🟢 sshark successfully removed from $WIN_INSTALL_PATH"
                 else
-                    echo "Failed to remove sshark"
+                    printf "\n🔴 Failed to remove sshark"
                     exit 1
                 fi
             else
-                echo "sshark not found in $install_path"
+                printf "\n🔴 sshark not found in $WIN_INSTALL_PATH"
             fi
             ;;
         *)
-            echo "Unknown or unsupported OS."
+            printf "\n🔴 Unknown or unsupported OS."
             exit 1
             ;;
     esac
@@ -115,7 +115,7 @@ main() {
             uninstall_sshark
             ;;
         *)
-            echo "Usage: $0 [-i|-I for install] [-u|-U for uninstall]"
+            printf "\n🟡 Usage: $0 [-i|-I for install] [-u|-U for uninstall]"
             exit 1
             ;;
     esac

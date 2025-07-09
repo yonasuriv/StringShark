@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import os
-import sys
 import re
+import sys
 import platform
+from colorama import Fore, Style
 
 # Function to colorize matched keyword for terminal output (Linux and macOS support colors)
 def colorize_keyword(line, keyword):
@@ -18,10 +19,12 @@ def colorize_replacement(replacement):
         return replacement
 
 def search_and_replace(keyword, match_mode, search_path, replace=None):
-    # Traverse through all directories and files in the current directory
-    for root, dirs, files in os.walk(search_path):
-        for file in files:
-            file_path = os.path.join(root, file)
+    matches_found = False  # Variable to track if any matches are found
+
+    # Traverse only the current directory (no recursion)
+    for file in os.listdir(search_path):
+        file_path = os.path.join(search_path, file)
+        if os.path.isfile(file_path):  # Ensure we're working with a file, not a directory
             try:
                 # Open file with proper encoding
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -44,19 +47,20 @@ def search_and_replace(keyword, match_mode, search_path, replace=None):
                     match = re.search(rf'\b{re.escape(keyword)}\b', line)
 
                 if match:
+                    matches_found = True  # At least one match was found
                     if replace:
                         # Replace keyword with the new value (case-insensitive)
                         new_line = re.sub(re.escape(keyword), replace, line, flags=re.IGNORECASE)
                         if new_line != line:
-                            print(f"\nKeyword \"{colorize_keyword(line.strip(), match.group())}\" replaced with \"{colorize_replacement(replace)}\" in {file_path}")
+                            print(f"\n🦈 Keyword \"{colorize_keyword(line.strip(), match.group())}\" replaced with \"{colorize_replacement(replace)}\" in {file_path}")
                         line = new_line
                     else:
-                        print(f"\nKeyword found in {file_path} on line {line_number}:")
+                        print(f"\n🦈 Keyword found in {file_path} on line {line_number}:")
                         # Highlight the matched keyword in the output
                         print(colorize_keyword(line.strip(), match.group()))
                     found = True
                 new_lines.append(line)
-            
+
             if found and replace:
                 # Write changes back to the file
                 try:
@@ -65,14 +69,51 @@ def search_and_replace(keyword, match_mode, search_path, replace=None):
                 except:
                     continue  # Ignore files that can't be written to
 
+    # If no matches were found, print a colored message
+    if not matches_found:
+        print(f"\n 🔴 " + "No matches found for the keyword:" + f"{Fore.GREEN}", keyword + f"{Style.RESET_ALL}")
+
+def print_help():
+    help_message = """
+Usage: sshark [-md|-mc|-mw|-me] "keyword" [-r "replace_value"] [-p "path"]
+
+Description:
+    A powerful search and replace tool for scanning through files in a directory.
+    It allows you to search for keywords in files with different match modes and
+    optionally replace them. It also supports searching through specific paths.
+
+Arguments:
+    -md          Match mode: default (case-insensitive, partial match). 
+                 Example: Finds keywords in any case (e.g. "hello" matches "Hello", "HELLO").
+    -mc          Match mode: case-sensitive (exact match). 
+                 Example: Only matches "hello" if the keyword is exactly "hello".
+    -mw          Match mode: whole word (case-insensitive).
+                 Example: Matches "hello" as a whole word (e.g. "hello" matches "hello", but not "hellos").
+    -me          Match mode: case-sensitive and whole word.
+                 Example: Finds only the exact match of "hello" as a whole word.
+
+    -r "replace_value"    Replace the found keyword with the given "replace_value".
+                          Example: Use this to replace all instances of the keyword with a new string.
+
+    -p "path"             The directory path where the search will be performed. 
+                          Defaults to the current directory if not provided.
+
+Examples:
+    sshark -md "foo"                 	# Search for "foo" (case-insensitive) in the current directory
+    sshark -mc "foo"                 	# Search for "foo" (case-sensitive) in the current directory
+    sshark -mw "foo" -r "bar"        	# Replace "foo" with "bar" in the current directory (whole word, case-insensitive)
+    sshark -me "foo" -p "/path/to/dir"  # Search for "foo" exactly (case-sensitive and whole word) in a specific directory
+"""
+    print(help_message)
+
 def main():
     # Check if enough arguments are provided
     if len(sys.argv) < 2:
-        print("Usage: sshark [-md|-mc|-mw|-me] \"keyword\" [-r \"replace_value\"] [-p \"path\"]")
+        print_help()
         sys.exit(1)
 
     # Default search path is the current directory
-    search_path = '.'
+    search_path = os.getcwd()
 
     # Extract the match mode and keyword
     if sys.argv[1] in ['-md', '-mc', '-mw', '-me']:
